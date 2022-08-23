@@ -352,6 +352,9 @@ setup_lxd () {
                 elif which pacman > /dev/null 2>&1 ; then
                     echo "sudo pacman -Syu zfs-utils"
                     sudo pacman -Syu zfs-utils
+                elif which xbps-install > /dev/null 2>&1 ; then
+                    echo "sudo xbps-install -S zfs"
+                    sudo xbps-install -S zfs
                 else
                     echo -e "${ERROR_COLOR}No known package manager found to install zfs utilities.${NC}"
                     exit 1
@@ -1055,7 +1058,7 @@ if [ -z "$SSH_ADDRESS" ] ; then
     if ! which adb > /dev/null 2>&1 ; then
         if which apt > /dev/null 2>&1 ; then
             MISSING_PACKAGES="android-tools-adb $MISSING_PACKAGES"
-        elif which pacman > /dev/null 2>&1 ; then
+        elif which pacman > /dev/null 2>&1 || which xbps-install > /dev/null 2>&1 ; then
             MISSING_PACKAGES="android-tools $MISSING_PACKAGES"
         fi
     fi
@@ -1063,7 +1066,7 @@ else
     if ! which ssh > /dev/null 2>&1 || ! which scp > /dev/null 2>&1 ; then
         if which apt > /dev/null 2>&1 ; then
             MISSING_PACKAGES="openssh-client $MISSING_PACKAGES"
-        elif which pacman > /dev/null 2>&1 ; then
+        elif which pacman > /dev/null 2>&1 || which xbps-install > /dev/null 2>&1 ; then
             MISSING_PACKAGES="openssh $MISSING_PACKAGES"
         fi
     fi
@@ -1081,6 +1084,9 @@ if [ ! -z "$MISSING_PACKAGES" ] ; then
     elif which pacman > /dev/null 2>&1 ; then
         echo "sudo pacman -Syu $MISSING_PACKAGES"
         sudo pacman -Syu $MISSING_PACKAGES
+    elif which xbps-install > /dev/null 2>&1 ; then
+        echo "sudo xbps-install -S $MISSING_PACKAGES"
+        sudo xbps-install -S $MISSING_PACKAGES
     else
         echo -e "${ERROR_COLOR}No known package manager found to install missing packages.${NC}"
         exit 1
@@ -1108,6 +1114,10 @@ if ! which lxd > /dev/null ; then
         elif which pacman > /dev/null 2>&1 ; then
             echo "sudo pacman -Syu --noconfirm lxd"
             sudo pacman -Syu lxd
+            lxd_service_action start
+        elif which xbps-install > /dev/null 2>&1 ; then
+            echo "sudo xbps-install -Sy lxd"
+            sudo xbps-install -Sy lxd
             lxd_service_action start
         elif which snap > /dev/null 2>&1 ; then
             echo "sudo snap install lxd"
