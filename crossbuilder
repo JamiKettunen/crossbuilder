@@ -259,20 +259,25 @@ check_lxd_accessible () {
         exit 1
     fi
 
+    if ! pgrep -xf 'lxd.*' >/dev/null && ! lxd_service_action start ; then
+        echo -e "${ERROR_COLOR}LXD service was not running and failed to start."
+        echo -e "For more information, run 'lxc info'.${NC}"
+        exit 1
+    fi
+
     if ! LXC_INFO_OUTPUT=$(lxc info 2>&1) ; then
         case "$LXC_INFO_OUTPUT" in
-            'Error: Get "http://unix.socket/1.0":'*)
-                if ! lxd_service_action start || ! lxc info >/dev/null 2>&1 ; then
-                    echo -e "${ERROR_COLOR}LXD service was not running and failed to start."
-                    echo -e "For more information, run 'lxc info'.${NC}"
-                    exit 1
-                fi
-                ;;
-            *)
+            *'connect: permission denied')
                 echo -e "${ERROR_COLOR}LXD was installed but is not accessible."
-                echo "Check the 'lxd' group exists and you are a member, then restart your computer."
+                echo "Check the 'lxd' group exists and you are a member, then 'su $USER' or re-login."
                 echo -e "For more information, run 'lxc info'.${NC}"
                 exit 1
+                ;;
+            *)
+                echo -e "${ERROR_COLOR}LXD service is in an unknown state."
+                echo -e "For more information, run 'lxc info'.${NC}"
+                exit 1
+                ;;
         esac
     fi
 }
@@ -1147,7 +1152,7 @@ if ! which lxd > /dev/null ; then
         ensure_lxd_subuid
         newgrp lxd
 	    sudo usermod -a -G lxd $(whoami)
-        echo -e "${ERROR_COLOR}LXD is now setup but will only work after you restart your computer.${NC}"
+        echo -e "${ERROR_COLOR}LXD is now setup but will only work after you 'su $USER' or re-login.${NC}"
         exit 0
     else
         echo -e "${ERROR_COLOR}$PROGRAM_NAME will not work without LXD. Bye.$OPTION${NC}"
