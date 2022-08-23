@@ -227,6 +227,23 @@ lxd_service_action () {
     elif systemctl cat lxd > /dev/null 2>&1 ; then
         echo "sudo systemctl ${action} lxd"
         sudo systemctl ${action} lxd
+    # runit
+    elif which sv > /dev/null 2>&1 && [ -d "/etc/sv/lxd" ] ; then
+        if [ ! -d /var/service ]; then
+            echo -e "${ERROR_COLOR}/var/service directory doesn't exist.${NC}"
+            return 1
+        elif [ ! -d /var/service/lxd ]; then
+            echo "sudo touch /etc/sv/lxd/down"
+            sudo touch /etc/sv/lxd/down
+            echo "sudo ln -s /etc/sv/lxd/ /var/service"
+            sudo ln -s /etc/sv/lxd/ /var/service
+            # give enough time for runsvdir to pick up new service:
+            # https://man.voidlinux.org/runsvdir.8
+            echo "sleep 5"
+            sleep 5
+        fi
+        echo "sudo sv ${action} lxd"
+        sudo sv ${action} lxd
     else
         echo -e "${ERROR_COLOR}Can't detect LXD service.${NC}"
         return 1
