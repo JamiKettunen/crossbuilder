@@ -339,7 +339,7 @@ setup_lxd () {
     else
         echo -e -n "${POSITIVE_COLOR}Would you like to setup LXD with ZFS in your home directory? (y/n) \n${NC}"
         echo -n "This is recommended for faster operation, and also in case there is not enough "
-        echo -n "space in your / partition. \n"
+        echo -e -n "space in your / partition. \n"
         read REPLY
         echo
         if [ "$REPLY" = y ]
