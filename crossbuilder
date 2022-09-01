@@ -244,6 +244,11 @@ lxd_service_action () {
         fi
         echo "sudo sv ${action} lxd"
         sudo sv ${action} lxd
+        if [ "${action}" = "start" ]; then
+            # HACK: give just a bit more time still to avoid "LXD service is in an unknown state"
+            echo "sleep 1"
+            sleep 1
+        fi
     else
         echo -e "${ERROR_COLOR}Can't detect LXD service.${NC}"
         return 1
