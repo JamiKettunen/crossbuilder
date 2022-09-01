@@ -468,7 +468,9 @@ detect_farch_and_build_params_in_container () {
 }
 
 create_container () {
-    lxc remote --protocol=simplestreams --public=true --accept-certificate=true add ubports-sdk https://sdk-images.ubports.com || true
+    if ! lxc remote ls -f csv | grep -q '^ubports-sdk,' ; then
+        lxc remote --protocol=simplestreams --public=true --accept-certificate=true add ubports-sdk https://sdk-images.ubports.com
+    fi
     lxc init $LXD_IMAGE $LXD_CONTAINER $EPHEMERAL_FLAG
     if [ -n "$ENCRYPTED_HOME" ] || [ -n "$FORCE_PRIVILEGED" ] ; then
         lxc config set $LXD_CONTAINER security.privileged true
